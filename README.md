@@ -14,5 +14,7 @@ rendering support:
 - Icon
   - 100% support for current roadmap usage
   - supports circle and check-circle icons
+- HRule
+  - 100% support for current usage
 
 Also full support for custom text color, eg: {color:#fff}text{color}
