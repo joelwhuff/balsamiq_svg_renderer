@@ -56,16 +56,16 @@ export default class BalsamiqRenderer {
     return this.canvasRenderingContext2D.measureText(text);
   }
 
-  addText(control, textColor, baseline, align) {
+  addText(control, textColor, align) {
     let text = control.properties.text ?? "";
     let x = parseInt(control.x);
     let y = parseInt(control.y);
 
     let font = this.parseFontProperties(control);
-    let textMetrics = this.measureText(text, `${font.style} ${font.weight} ${font.size} ${font.family}`);
+    let { width } = this.measureText(text, `${font.style} ${font.weight} ${font.size} ${font.family}`);
 
-    let textX = align === "left" ? x : x + (control.w ?? control.measuredW) / 2 - textMetrics.width / 2;
-    let textY = baseline === "hanging" ? y + textMetrics.fontBoundingBoxDescent : y + control.measuredH / 2;
+    let textX = align === "center" ? x + (control.w ?? control.measuredW) / 2 - width / 2 : x;
+    let textY = y + control.measuredH / 2;
 
     let textElement = makeSVGElement(
       "text",
@@ -77,7 +77,7 @@ export default class BalsamiqRenderer {
         "font-weight": font.weight,
         "font-size": font.size,
         "font-family": font.family,
-        "dominant-baseline": baseline,
+        "dominant-baseline": "middle",
       },
       this.container
     );
@@ -117,13 +117,13 @@ export default class BalsamiqRenderer {
   }
 
   Label(control) {
-    this.addText(control, this.parseColor(control.properties?.color, "0,0,0"), "hanging", "left");
+    this.addText(control, this.parseColor(control.properties?.color, "0,0,0"), "left");
   }
 
   TextInput(control) {
     this.drawRectangle(control);
 
-    this.addText(control, this.parseColor(control.properties?.textColor, "0,0,0"), "middle", "center");
+    this.addText(control, this.parseColor(control.properties?.textColor, "0,0,0"), "center");
   }
 
   Arrow(control) {
