@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test</title>
+    <style>
+      body {
+        margin-top: 20px;
+        background-color: #777;
+        text-align: center;
+      }
+
+      svg {
+        margin-top: 20px;
+        background-color: #fff;
+      }
+
+      button {
+        margin: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="svg-container"></div>
+    <script type="module">
+      import wireframeJSONToSVG from "./src/index.js";
+
+      let font = new FontFace("balsamiq", "url(BalsamiqSans-Regular.ttf)");
+      font.load().then(() => {
+        document.fonts.add(font);
+      });
+
+      let files = ["backend", "devops", "frontend", "intro", "java"];
+
+      files.forEach((file) => {
+        let button = document.createElement("button");
+        button.textContent = file;
+
+        document.body.insertBefore(button, document.body.firstChild);
+
+        button.onclick = () => {
+          fetch(`test_wireframes/${file}.json`)
+            .then((data) => {
+              return data.json();
+            })
+            .then((json) => {
+              let svgElement = wireframeJSONToSVG(json);
+
+              let container = document.getElementById("svg-container");
+              container.firstChild && container.removeChild(container.firstChild);
+              container.appendChild(svgElement);
+            });
+        };
+      });
+    </script>
+  </body>
+</html>
