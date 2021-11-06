@@ -8,8 +8,8 @@ import { makeSVGElement } from "./utils.js";
  * @returns {SVGElement} SVG element
  */
 export default function wireframeJSONToSVG({ mockup }, padding = 10, fontFamily = "balsamiq") {
-  let x = mockup.measuredW - mockup.mockupW - padding / 2;
-  let y = mockup.measuredH - mockup.mockupH - padding / 2;
+  let x = mockup.measuredW - mockup.mockupW - padding;
+  let y = mockup.measuredH - mockup.mockupH - padding;
   let width = parseInt(mockup.mockupW) + padding;
   let height = parseInt(mockup.mockupH) + padding;
 
