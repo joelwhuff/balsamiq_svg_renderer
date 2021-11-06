@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test</title>
     <style>
+      @font-face {
+        font-family: balsamiq;
+        src: url("./BalsamiqSans-Regular.ttf") format("truetype");
+      }
+
       body {
         margin-top: 20px;
         background-color: #888;
@@ -25,11 +30,6 @@
     <div id="svg-container"></div>
     <script type="module">
       import wireframeJSONToSVG from "./src/index.js";
-
-      let font = new FontFace("balsamiq", "url(BalsamiqSans-Regular.ttf)");
-      font.load().then(() => {
-        document.fonts.add(font);
-      });
 
       let files = ["backend", "devops", "frontend", "intro", "java"];
 
