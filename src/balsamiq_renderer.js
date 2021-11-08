@@ -62,10 +62,10 @@ export default class BalsamiqRenderer {
     let y = parseInt(control.y);
 
     let font = this.parseFontProperties(control);
-    let { width } = this.measureText(text, `${font.style} ${font.weight} ${font.size} ${font.family}`);
+    let textMetrics = this.measureText(text, `${font.style} ${font.weight} ${font.size} ${font.family}`);
 
-    let textX = align === "center" ? x + (control.w ?? control.measuredW) / 2 - width / 2 : x;
-    let textY = y + control.measuredH / 2;
+    let textX = align === "center" ? x + (control.w ?? control.measuredW) / 2 - textMetrics.width / 2 : x;
+    let textY = y + control.measuredH / 2 + textMetrics.actualBoundingBoxAscent / 2;
 
     let textElement = makeSVGElement(
       "text",
@@ -77,7 +77,6 @@ export default class BalsamiqRenderer {
         "font-weight": font.weight,
         "font-size": font.size,
         "font-family": font.family,
-        "dominant-baseline": "middle",
       },
       this.container
     );
