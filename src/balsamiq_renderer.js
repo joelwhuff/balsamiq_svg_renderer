@@ -15,7 +15,7 @@ export default class BalsamiqRenderer {
     if (typeID in this) {
       this[typeID](control);
     } else {
-      console.error(`'${typeID}' control type not implemented`);
+      console.log(`'${typeID}' control type not implemented`);
     }
   }
 

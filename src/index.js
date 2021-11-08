@@ -2,16 +2,33 @@ import BalsamiqRenderer from "./balsamiq_renderer.js";
 import { makeSVGElement } from "./utils.js";
 
 /**
- * @param {Object} data - Wireframe JSON data
- * @param {number} padding - Padding for the canvas. Defaults to 10 to prevent items from clipping off the edge of the canvas
- * @param {string} fontFamily - Defaults to "balsamiq"
- * @returns {SVGElement} SVG element
+ * @param {Object} wireframe - Wireframe JSON
+ * @param {Object} options - Config object
+ * @param {number} [options.padding=5] - Padding for the SVG element
+ * @param {string} [options.fontFamily=balsamiq]
+ * @param {string} [options.fontURL=https://fonts.gstatic.com/s/balsamiqsans/v3/P5sEzZiAbNrN8SB3lQQX7Pncwd4XIA.woff2]
+ * @returns {Promise} SVG element
  */
-export default function wireframeJSONToSVG({ mockup }, padding = 10, fontFamily = "balsamiq") {
-  let x = mockup.measuredW - mockup.mockupW - padding;
-  let y = mockup.measuredH - mockup.mockupH - padding;
-  let width = parseInt(mockup.mockupW) + padding;
-  let height = parseInt(mockup.mockupH) + padding;
+export default async function wireframeJSONToSVG(wireframe, options = {}) {
+  options = {
+    padding: 5,
+    fontFamily: "balsamiq",
+    fontURL: "https://fonts.gstatic.com/s/balsamiqsans/v3/P5sEzZiAbNrN8SB3lQQX7Pncwd4XIA.woff2",
+    ...options,
+  };
+
+  if (options.fontURL) {
+    let font = new FontFace(options.fontFamily, `url(${options.fontURL})`);
+    await font.load();
+    document.fonts.add(font);
+  }
+
+  let mockup = wireframe.mockup;
+
+  let x = mockup.measuredW - mockup.mockupW - options.padding;
+  let y = mockup.measuredH - mockup.mockupH - options.padding;
+  let width = parseInt(mockup.mockupW) + options.padding * 2;
+  let height = parseInt(mockup.mockupH) + options.padding * 2;
 
   let svg = makeSVGElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -19,7 +36,7 @@ export default function wireframeJSONToSVG({ mockup }, padding = 10, fontFamily 
     viewBox: `${x} ${y} ${width} ${height}`,
   });
 
-  let renderer = new BalsamiqRenderer(svg, fontFamily);
+  let renderer = new BalsamiqRenderer(svg, options.fontFamily);
 
   mockup.controls.control
     .sort((a, b) => {
