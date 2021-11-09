@@ -17,4 +17,4 @@ rendering support:
 - HRule
   - 100% support for current usage
 
-Also full support for custom text color, eg: {color:#fff}text{color}
+Also full support for custom text color, eg: {color:blue3}text{color}
