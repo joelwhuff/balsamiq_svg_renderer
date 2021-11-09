@@ -8,27 +8,6 @@ export default class BalsamiqRenderer {
     this.fontFamily = fontFamily;
 
     this.canvasRenderingContext2D = document.createElement("canvas").getContext("2d");
-
-    this.addDefs();
-  }
-
-  addDefs() {
-    let defs = makeSVGElement("defs", {}, this.svgRoot);
-
-    let checkCircle = makeSVGElement("g", { id: "check-circle", x: 0, y: 0 }, defs);
-    let radius = 10;
-    makeSVGElement("circle", { id: "circle", r: radius, cx: radius, cy: radius }, checkCircle);
-    makeSVGElement(
-      "path",
-      {
-        d: `M${4.5} ${radius}L${8.5} ${radius + 4} ${15} ${radius - 2.5}`,
-        stroke: "#fff",
-        "stroke-width": 3.5,
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-      },
-      checkCircle
-    );
   }
 
   render(control, container) {
@@ -176,28 +155,35 @@ export default class BalsamiqRenderer {
   Icon(control, container) {
     let x = parseInt(control.x);
     let y = parseInt(control.y);
+    let radius = 10;
 
-    if (control.properties.icon.ID === "check-circle") {
-      makeSVGElement(
-        "use",
-        {
-          href: "#check-circle",
-          fill: this.parseColor(control.properties?.color, "0,0,0"),
-          transform: `translate(${x} ${y})`,
-        },
-        container
-      );
-    } else {
-      makeSVGElement(
-        "use",
-        {
-          href: "#circle",
-          fill: this.parseColor(control.properties?.color, "0,0,0"),
-          transform: `translate(${x} ${y})`,
-        },
-        container
-      );
+    makeSVGElement(
+      "circle",
+      {
+        cx: x + radius,
+        cy: y + radius,
+        r: radius,
+        fill: this.parseColor(control.properties?.color, "0,0,0"),
+      },
+      container
+    );
+
+    if (control.properties.icon.ID !== "check-circle") {
+      return;
     }
+
+    makeSVGElement(
+      "path",
+      {
+        d: `M${x + 4.5} ${y + radius}L${x + 8.5} ${y + radius + 4} ${x + 15} ${y + radius - 2.5}`,
+        fill: "none",
+        stroke: "#fff",
+        "stroke-width": 3.5,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      },
+      container
+    );
   }
 
   HRule(control, container) {
