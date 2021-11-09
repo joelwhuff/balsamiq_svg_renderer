@@ -42,7 +42,9 @@
             .then((json) => {
               wireframeJSONToSVG(json).then((svgElement) => {
                 let container = document.getElementById("svg-container");
+
                 container.firstChild && container.removeChild(container.firstChild);
+
                 container.appendChild(svgElement);
               });
             });

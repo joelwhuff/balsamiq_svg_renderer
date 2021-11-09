@@ -7,7 +7,7 @@ import { makeSVGElement } from "./utils.js";
  * @param {number} [options.padding=5] - Padding for the SVG element
  * @param {string} [options.fontFamily=balsamiq]
  * @param {string} [options.fontURL=https://fonts.gstatic.com/s/balsamiqsans/v3/P5sEzZiAbNrN8SB3lQQX7Pncwd4XIA.woff2]
- * @returns {Promise} SVG element
+ * @returns {Promise} Resolves SVG element
  */
 export default async function wireframeJSONToSVG(wireframe, options = {}) {
   options = {
@@ -30,27 +30,22 @@ export default async function wireframeJSONToSVG(wireframe, options = {}) {
   let width = parseInt(mockup.mockupW) + options.padding * 2;
   let height = parseInt(mockup.mockupH) + options.padding * 2;
 
-  let svg = makeSVGElement("svg", {
+  let svgRoot = makeSVGElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
     "xmlns:xlink": "http://www.w3.org/1999/xlink",
     viewBox: `${x} ${y} ${width} ${height}`,
+    style: "font-family: balsamiq",
   });
 
-  makeSVGElement("style", {}, svg).textContent = `
-    g:hover {
-      filter: brightness(1.5);
-    }
-  `;
-
-  let renderer = new BalsamiqRenderer(svg, options.fontFamily);
+  let renderer = new BalsamiqRenderer(svgRoot, options.fontFamily);
 
   mockup.controls.control
     .sort((a, b) => {
       return a.zOrder - b.zOrder;
     })
     .forEach((control) => {
-      renderer.render(control);
+      renderer.render(control, svgRoot);
     });
 
-  return svg;
+  return svgRoot;
 }

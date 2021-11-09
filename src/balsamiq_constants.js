@@ -1,6 +1,7 @@
 export const FONT_SIZE = "13px";
 export const BORDER_WIDTH = 2.7;
 export const ARROW_WIDTH = 4;
+export const RECT_RADIUS = 2;
 
 export const DEFAULT_COLORS = {
   black: ["#000"],

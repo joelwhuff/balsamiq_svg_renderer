@@ -1,42 +1,40 @@
 import { getRGBFromDecimalColor, makeSVGElement } from "./utils.js";
-import { ARROW_WIDTH, BORDER_WIDTH, DEFAULT_COLORS } from "./balsamiq_constants.js";
+import { ARROW_WIDTH, BORDER_WIDTH, DEFAULT_COLORS, RECT_RADIUS } from "./balsamiq_constants.js";
 
 export default class BalsamiqRenderer {
-  constructor(container, fontFamily) {
-    this.container = container;
+  constructor(svgRoot, fontFamily) {
+    this.svgRoot = svgRoot;
 
     this.fontFamily = fontFamily;
 
     this.canvasRenderingContext2D = document.createElement("canvas").getContext("2d");
 
-    this.init();
+    this.addDefs();
   }
 
-  init() {
-    let defs = makeSVGElement("defs", {}, this.container);
+  addDefs() {
+    let defs = makeSVGElement("defs", {}, this.svgRoot);
 
+    let checkCircle = makeSVGElement("g", { id: "check-circle", x: 0, y: 0 }, defs);
     let radius = 10;
-    makeSVGElement("circle", { id: "iconCircle", r: radius }, defs);
-
+    makeSVGElement("circle", { id: "circle", r: radius, cx: radius, cy: radius }, checkCircle);
     makeSVGElement(
       "path",
       {
-        id: "checkmark",
         d: `M${4.5} ${radius}L${8.5} ${radius + 4} ${15} ${radius - 2.5}`,
-        fill: "none",
         stroke: "#fff",
         "stroke-width": 3.5,
         "stroke-linecap": "round",
         "stroke-linejoin": "round",
       },
-      defs
+      checkCircle
     );
   }
 
-  render(control) {
+  render(control, container) {
     let typeID = control.typeID;
     if (typeID in this) {
-      this[typeID](control);
+      this[typeID](control, container);
     } else {
       console.log(`'${typeID}' control type not implemented`);
     }
@@ -55,7 +53,13 @@ export default class BalsamiqRenderer {
     };
   }
 
-  drawRectangle(control) {
+  measureText(text, font) {
+    this.canvasRenderingContext2D.font = font;
+
+    return this.canvasRenderingContext2D.measureText(text);
+  }
+
+  drawRectangle(control, container) {
     makeSVGElement(
       "rect",
       {
@@ -63,23 +67,17 @@ export default class BalsamiqRenderer {
         y: parseInt(control.y) + BORDER_WIDTH / 2,
         width: parseInt(control.w ?? control.measuredW) - BORDER_WIDTH,
         height: parseInt(control.h ?? control.measuredH) - BORDER_WIDTH,
-        rx: 2,
+        rx: RECT_RADIUS,
         fill: this.parseColor(control.properties?.color, "255,255,255"),
         "fill-opacity": control.properties?.backgroundAlpha ?? 1,
         stroke: this.parseColor(control.properties?.borderColor, "0,0,0"),
         "stroke-width": BORDER_WIDTH,
       },
-      this.container
+      container
     );
   }
 
-  measureText(text, font) {
-    this.canvasRenderingContext2D.font = font;
-
-    return this.canvasRenderingContext2D.measureText(text);
-  }
-
-  addText(control, textColor, align) {
+  addText(control, container, textColor, align) {
     let text = control.properties.text ?? "";
     let x = parseInt(control.x);
     let y = parseInt(control.y);
@@ -99,9 +97,8 @@ export default class BalsamiqRenderer {
         "font-style": font.style,
         "font-weight": font.weight,
         "font-size": font.size,
-        "font-family": font.family,
       },
-      this.container
+      container
     );
 
     if (!text.includes("{color:")) {
@@ -130,25 +127,25 @@ export default class BalsamiqRenderer {
     });
   }
 
-  TextArea(control) {
-    this.drawRectangle(control);
+  TextArea(control, container) {
+    this.drawRectangle(control, container);
   }
 
-  Canvas(control) {
-    this.drawRectangle(control);
+  Canvas(control, container) {
+    this.drawRectangle(control, container);
   }
 
-  Label(control) {
-    this.addText(control, this.parseColor(control.properties?.color, "0,0,0"), "left");
+  Label(control, container) {
+    this.addText(control, container, this.parseColor(control.properties?.color, "0,0,0"), "left");
   }
 
-  TextInput(control) {
-    this.drawRectangle(control);
+  TextInput(control, container) {
+    this.drawRectangle(control, container);
 
-    this.addText(control, this.parseColor(control.properties?.textColor, "0,0,0"), "center");
+    this.addText(control, container, this.parseColor(control.properties?.textColor, "0,0,0"), "center");
   }
 
-  Arrow(control) {
+  Arrow(control, container) {
     let x = parseInt(control.x);
     let y = parseInt(control.y);
     let { p0, p1, p2 } = control.properties;
@@ -172,40 +169,38 @@ export default class BalsamiqRenderer {
         "stroke-linejoin": "round",
         "stroke-dasharray": lineDash,
       },
-      this.container
+      container
     );
   }
 
-  Icon(control) {
+  Icon(control, container) {
     let x = parseInt(control.x);
     let y = parseInt(control.y);
 
-    makeSVGElement(
-      "use",
-      {
-        href: "#iconCircle",
-        x: x + 10,
-        y: y + 10,
-        fill: this.parseColor(control.properties?.color, "0,0,0"),
-      },
-      this.container
-    );
-
-    if (!control.properties.icon.ID.includes("check-circle")) {
-      return;
+    if (control.properties.icon.ID === "check-circle") {
+      makeSVGElement(
+        "use",
+        {
+          href: "#check-circle",
+          fill: this.parseColor(control.properties?.color, "0,0,0"),
+          transform: `translate(${x} ${y})`,
+        },
+        container
+      );
+    } else {
+      makeSVGElement(
+        "use",
+        {
+          href: "#circle",
+          fill: this.parseColor(control.properties?.color, "0,0,0"),
+          transform: `translate(${x} ${y})`,
+        },
+        container
+      );
     }
-
-    makeSVGElement(
-      "use",
-      {
-        href: "#checkmark",
-        transform: `translate(${x} ${y})`,
-      },
-      this.container
-    );
   }
 
-  HRule(control) {
+  HRule(control, container) {
     let x = parseInt(control.x);
     let y = parseInt(control.y);
 
@@ -224,11 +219,13 @@ export default class BalsamiqRenderer {
         "stroke-linejoin": "round",
         "stroke-dasharray": lineDash,
       },
-      this.container
+      container
     );
   }
 
-  __group__(control) {
+  __group__(control, container) {
+    let group = makeSVGElement("g", {}, container);
+
     control.children.controls.control
       .sort((a, b) => {
         return a.zOrder - b.zOrder;
@@ -236,7 +233,7 @@ export default class BalsamiqRenderer {
       .forEach((childControl) => {
         childControl.x = parseInt(childControl.x) + parseInt(control.x);
         childControl.y = parseInt(childControl.y) + parseInt(control.y);
-        this.render(childControl);
+        this.render(childControl, group);
       });
   }
 }
