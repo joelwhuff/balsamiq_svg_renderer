@@ -8,6 +8,29 @@ export default class BalsamiqRenderer {
     this.fontFamily = fontFamily;
 
     this.canvasRenderingContext2D = document.createElement("canvas").getContext("2d");
+
+    this.init();
+  }
+
+  init() {
+    let defs = makeSVGElement("defs", {}, this.container);
+
+    let radius = 10;
+    makeSVGElement("circle", { id: "iconCircle", r: radius }, defs);
+
+    makeSVGElement(
+      "path",
+      {
+        id: "checkmark",
+        d: `M${4.5} ${radius}L${8.5} ${radius + 4} ${15} ${radius - 2.5}`,
+        fill: "none",
+        stroke: "#fff",
+        "stroke-width": 3.5,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      },
+      defs
+    );
   }
 
   render(control) {
@@ -156,14 +179,13 @@ export default class BalsamiqRenderer {
   Icon(control) {
     let x = parseInt(control.x);
     let y = parseInt(control.y);
-    let radius = (control.measuredW - 4) / 2;
 
     makeSVGElement(
-      "circle",
+      "use",
       {
-        cx: x + radius,
-        cy: y + radius,
-        r: radius,
+        href: "#iconCircle",
+        x: x + 10,
+        y: y + 10,
         fill: this.parseColor(control.properties?.color, "0,0,0"),
       },
       this.container
@@ -174,14 +196,10 @@ export default class BalsamiqRenderer {
     }
 
     makeSVGElement(
-      "path",
+      "use",
       {
-        d: `M${x + 4.5} ${y + radius}L${x + 8.5} ${y + radius + 4} ${x + 15} ${y + radius - 2.5}`,
-        fill: "none",
-        stroke: "#fff",
-        "stroke-width": 3.5,
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
+        href: "#checkmark",
+        transform: `translate(${x} ${y})`,
       },
       this.container
     );

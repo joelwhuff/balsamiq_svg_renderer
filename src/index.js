@@ -36,6 +36,12 @@ export default async function wireframeJSONToSVG(wireframe, options = {}) {
     viewBox: `${x} ${y} ${width} ${height}`,
   });
 
+  makeSVGElement("style", {}, svg).textContent = `
+    g:hover {
+      filter: brightness(1.5);
+    }
+  `;
+
   let renderer = new BalsamiqRenderer(svg, options.fontFamily);
 
   mockup.controls.control
